@@ -1,0 +1,98 @@
+---
+title: "Cultural Distances"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Cultural Distances}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r, include=FALSE}
+if (!require(wvsR)) {
+  if (!require(remotes)) install.packages("remotes")
+  remotes::install_github("cwendorf/wvsR")
+}
+library(wvsR)
+```
+
+## Cultural Distances
+
+`wvsR` includes tools for visualising cultural differences across countries. 
+These can be used to explore the relationships between dimensions, identify clusters of similar cultures, 
+and highlight specific countries of interest.
+
+## Similar Countries
+
+`wvs_neighbors()` ranks countries by Euclidean distance across the selected
+dimension means.
+
+```{r}
+wvs_neighbors(
+  "US",
+  n = 5,
+  dimensions = dims_extended
+)
+```
+
+```{r}
+wvs_neighbors(
+  "US",
+  n = 5,
+  select = c("Tradition", "Survival")
+)
+```
+
+## Mapping Countries
+
+`wvs_map()` can map countries directly on two named dimensions.
+
+```{r, fig.width = 7, fig.height = 5}
+wvs_map(
+  method = "dimensions",
+  wave = 7,
+  select = c("Tradition", "Survival"),
+  x_dimension = "Tradition",
+  y_dimension = "Survival",
+  highlight = c("US", "CA")
+)
+```
+
+It can also reduce a larger selected dimension space with PCA or MDS.
+
+```{r, fig.width = 7, fig.height = 5}
+wvs_map(
+  method = "pca",
+  dimensions = dims_extended,
+  highlight = c("US", "CA")
+)
+```
+
+```{r, fig.width = 7, fig.height = 5}
+wvs_map(
+  method = "mds",
+  dimensions = dims_extended,
+  highlight = c("US", "CA")
+)
+```
+
+## Clustering Countries
+
+`wvs_clusters()` applies k-means clustering to the selected country mean
+profiles.
+
+```{r}
+clusters <- wvs_clusters(
+  k = 4,
+  dimensions = dims_extended,
+)
+
+head(clusters$assignments)
+clusters$cluster_means
+```

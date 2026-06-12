@@ -1,0 +1,16 @@
+
+export(names)
+export(variables)
+export(country)
+export(countries)
+
+export(wvs_profile)
+export(wvs_difference)
+export(wvs_compare)
+S3method(plot, wvs_compare)
+S3method(plot, wvs_difference)
+S3method(plot, wvs_profile)
+
+export(wvs_neighbors)
+export(wvs_map)
+export(wvs_clusters)

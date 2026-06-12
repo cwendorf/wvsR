@@ -1,0 +1,67 @@
+---
+title: "Custom Dimensions"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Custom Dimensions}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r, include=FALSE}
+if (!require(wvsR)) {
+  if (!require(remotes)) install.packages("remotes")
+  remotes::install_github("cwendorf/wvsR")
+}
+library(wvsR)
+```
+
+## Custom Dimensions
+
+This page shows how to define custom dimensions and use them with the same profile and comparison functions as the default EVS/WVS set.
+
+### Define A Dimension Set
+
+A dimension set is a named list. Each dimension has a label, a description, and
+one or more EVS/WVS items. Items declare the source variable, response range,
+and direction.
+
+```{r}
+custom_dims <- list(
+  Social_Short = list(
+    label = "Social Trust, Short Form",
+    items = list(
+      wvs_item("A165", 1, 2, -1),
+      wvs_item("G007_34_B", 1, 4, -1),
+      wvs_item("G007_35_B", 1, 4, -1),
+      wvs_item("G007_36_B", 1, 4, -1)
+    )
+  )
+)
+```
+
+### Validate The Variables
+
+The `wvs_variables()` function checks that the source variables exist in the data and reports their labels and observed response ranges.
+
+```{r}
+wvs_variables(custom_dims)
+```
+
+### Use The Custom Set
+
+The same profile and comparison functions work with custom dimensions.
+
+```{r}
+wvs_profile("JP", wave = 7, dimensions = custom_dims)
+```
+
+```{r}
+wvs_difference(countries = c("JP", "US"), wave = 7, dimensions = custom_dims)
+```

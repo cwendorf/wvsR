@@ -1,0 +1,93 @@
+---
+title: "EVS/WVS Joint Dataset Dev Overview"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{EVS/WVS Joint Dataset Dev Overview}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r, include=FALSE}
+if (!require(wvsR)) {
+  if (!require(remotes)) install.packages("remotes")
+  remotes::install_github("cwendorf/wvsR")
+}
+library(wvsR)
+```
+
+## Overview
+
+`wvsR` provides tools for profiling, comparing, and visualising
+cultural differences using data from the European Values Study (EVS) and World
+Values Survey (WVS) Joint Dataset. 
+
+### The Six Dimensions
+
+The package defines six cultural dimensions derived directly from EVS/WVS survey
+items. All dimensions are scored on a common 0–10 scale (higher = more of the
+named construct):
+
+| Dimension        | What it measures                                  |
+|:-----------------|:--------------------------------------------------|
+| Trust            | Interpersonal trust, fairness, helpfulness        |
+| Traditionalism   | Religion, family values, traditional morality     |
+| Hierarchy        | Deference to authority, gender-based power        |
+| Individualism    | Personal autonomy, independence, self-expression  |
+| Tolerance        | Openness to outgroups, minority rights            |
+| Civic Engagement | Political and civic participation                 |
+
+To see the full item-level detail:
+
+
+### Dimension Sets
+
+Dimension definitions are explicit objects. Functions
+accept a `dimensions` argument and a `select` argument, which lets the same
+scoring engine use the default EVS/WVS set, an extended set, or a user-defined
+set.
+
+```{r}
+wvs_names(dims_all)
+```
+
+### Check Item Availability
+
+The joint v5 file includes all variables used in the development dimension set.
+The availability table also reports the source variable description stored in
+the `.rdata` object and the observed nonnegative response range.
+
+```{r}
+wvs_variables()
+```
+
+```{r}
+availability <- wvs_variables(dims_all)
+subset(
+  availability,
+  select = c(dimension, variable)
+)
+```
+
+### Work With Countries and Waves
+
+The `wvs_countries()` function lists the available countries and waves. The `wave` argument filters the list to countries that participated in a given wave.
+
+```{r}
+wvs_countries()
+wvs_countries(wave = 7)
+```
+
+A `wvs_country()` call returns the iso, country name, and number of observations for a given country. The function is flexible with country names.
+
+```{r}
+wvs_country("United States")
+wvs_country("USA")
+wvs_country("US")
+```
