@@ -1,34 +1,14 @@
----
-title: "Cultural Distances"
-output: rmarkdown::html_vignette
-vignette: >
-  %\VignetteIndexEntry{Cultural Distances}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
----
-
-```{r setup, include = FALSE}
-knitr::opts_chunk$set(fig.width = 7, fig.height = 7, fig.path = "figures/", echo = TRUE, warning = FALSE, message = FALSE, comment = NA)
-devtools::source_gist("8e6e5dc401e3fc1042ef7a030f9d19c7", filename = "revised_toc.R")
-```
-
-```{r, include=FALSE}
-if (!require(remotes)) install.packages("remotes")
-if (!require(wvsR)) {remotes::install_github("cwendorf/wvsR")}
-library(wvsR)
-```
+# [`wvsR`](https://github.com/cwendorf/wvsR/)
 
 ## Cultural Distances
 
-`wvsR` includes tools for visualising cultural differences across countries. 
-These can be used to explore the relationships between dimensions, identify clusters of similar cultures, 
-and highlight specific countries of interest.
+`wvsR` includes tools for visualising cultural differences across countries. These can be used to explore the relationships between dimensions, identify clusters of similar cultures, and highlight specific countries of interest.
 
-## Mapping Countries
+### Mapping Countries
 
 `wvs_space()` can map countries directly on two named dimensions.
 
-```{r}
+```r
 wvs_space(
   method = "dimensions",
   select = c("Tradition", "Survival"),
@@ -36,7 +16,7 @@ wvs_space(
 )
 ```
 
-```{r}
+```r
 wvs_space(
   method = "dimensions",
   select = c("Survival", "Tradition"),
@@ -44,8 +24,7 @@ wvs_space(
 ) |> plot()
 ```
 
-
-```{r}
+```r
 wvs_space(
   method = "dimensions",
   select = c("SurvivalSelfExpression", "TraditionalSecular"),
@@ -53,7 +32,7 @@ wvs_space(
 ) |> plot()
 ```
 
-```{r}
+```r
 wvs_space(
   method = "dimensions",
   select = c("Religiosity", "Economic"),
@@ -61,7 +40,7 @@ wvs_space(
 ) |> plot()
 ```
 
-```{r}
+```r
 wvs_space(
   method = "dimensions",
   select = c("Democracy", "DemocraticValues"),
@@ -71,7 +50,7 @@ wvs_space(
 
 It can also reduce a larger selected dimension space with PCA or MDS.
 
-```{r}
+```r
 wvs_space(
   method = "pca",
   dimensions = dims_main,
@@ -79,7 +58,7 @@ wvs_space(
 )
 ```
 
-```{r}
+```r
 wvs_space(
   method = "pca",
   dimensions = dims_main,
@@ -87,7 +66,7 @@ wvs_space(
 ) |> plot()
 ```
 
-```{r}
+```r
 wvs_space(
   method = "mds",
   dimensions = dims_all,
@@ -95,7 +74,7 @@ wvs_space(
 )
 ```
 
-```{r}
+```r
 wvs_space(
   method = "mds",
   dimensions = dims_all,
@@ -103,12 +82,11 @@ wvs_space(
 ) |> plot()
 ```
 
-## Similar Countries
+### Similar Countries
 
-`wvs_neighbors()` ranks countries by Euclidean distance across the selected
-dimension means.
+`wvs_neighbors()` ranks countries by Euclidean distance across the selected dimension means.
 
-```{r}
+```r
 wvs_neighbors(
   "US",
   n = 5,
@@ -116,7 +94,7 @@ wvs_neighbors(
 )
 ```
 
-```{r}
+```r
 wvs_neighbors(
   "US",
   n = 5,
@@ -124,12 +102,11 @@ wvs_neighbors(
 )
 ```
 
-## Clustering Countries
+### Clustering Countries
 
-`wvs_clusters()` applies k-means clustering to the selected country mean
-profiles.
+`wvs_clusters()` applies k-means clustering to the selected country mean profiles.
 
-```{r}
+```r
 wvs_clusters(
   k = 4,
   dimensions = dims_main

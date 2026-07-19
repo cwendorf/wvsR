@@ -1,12 +1,49 @@
-## Dimensions and item definitions
+# wvsR
+## Dimensions and Item Definition Functions
 
-wvs_item <- function(var, label, original_min = NULL, original_max = NULL, direction = 1) {
+#' Create a dimension item specification
+#'
+#' Construct a list describing a survey item used in a dimension
+#' definition. This helper normalizes several calling styles and
+#' fills missing metadata from the harmonized item codebook.
+#'
+#' @param var Character variable name (e.g. "A008").
+#' @param label Human-readable label for the item. If numeric and
+#'   `original_min`/`original_max` are supplied in the alternate
+#'   calling form, `label` may be omitted.
+#' @param original_min Optional numeric minimum of the original
+#'   response scale.
+#' @param original_max Optional numeric maximum of the original
+#'   response scale.
+#' @param direction Numeric multiplier (1 or -1) indicating whether
+#'   higher values indicate more of the dimension (1) or less (-1).
+#' @return A named list describing the item.
+#' @keywords internal
+#' @noRd
+wvs_item <- function(var, label = NULL, original_min = NULL, original_max = NULL, direction = NULL) {
   if (is.numeric(label) && !is.null(original_min) && !is.null(original_max)) {
     direction <- original_max
     original_max <- original_min
     original_min <- label
     label <- var
   }
+
+  item_metadata <- get_item_metadata(var)
+  if (is.null(label) || identical(label, var)) {
+    if (!is.na(item_metadata$label[1])) {
+      label <- item_metadata$label[1]
+    }
+  }
+  if (is.null(original_min) && !is.na(item_metadata$min[1])) {
+    original_min <- item_metadata$min[1]
+  }
+  if (is.null(original_max) && !is.na(item_metadata$max[1])) {
+    original_max <- item_metadata$max[1]
+  }
+  if (is.null(direction) && !is.na(item_metadata$direction[1])) {
+    direction <- item_metadata$direction[1]
+  }
+  if (is.null(direction)) direction <- 1
 
   list(
     var = var,
@@ -17,199 +54,325 @@ wvs_item <- function(var, label, original_min = NULL, original_max = NULL, direc
   )
 }
 
+ #' @keywords internal
+ #' @noRd
+resolve_dimension_items <- function(items) {
+  if (is.null(items)) return(list())
+
+  if (is.character(items)) {
+    return(lapply(items, wvs_item))
+  }
+
+  if (is.numeric(items) && !is.null(names(items))) {
+    return(lapply(seq_along(items), function(i) {
+      wvs_item(names(items)[i], direction = items[[i]])
+    }))
+  }
+
+  if (is.list(items)) {
+    if (length(items) == 0) return(list())
+
+    if (all(vapply(items, is.character, logical(1)))) {
+      return(lapply(unlist(items), wvs_item))
+    }
+
+    if (!is.null(names(items)) && all(nzchar(names(items))) && all(vapply(items, is.numeric, logical(1)))) {
+      return(lapply(seq_along(items), function(i) {
+        wvs_item(names(items)[i], direction = items[[i]])
+      }))
+    }
+
+    return(lapply(items, function(item) {
+      if (is.character(item) && length(item) == 1) {
+        return(wvs_item(item))
+      }
+      if (is.list(item) && !is.null(item$var)) {
+        return(item)
+      }
+      stop("Unsupported item format in dimension definition.", call. = FALSE)
+    }))
+  }
+
+  stop("Unsupported item format in dimension definition.", call. = FALSE)
+}
+
+ #' @keywords internal
+ #' @noRd
+resolve_dimension <- function(dimension) {
+  if (!is.null(dimension$items)) {
+    dimension$items <- resolve_dimension_items(dimension$items)
+  }
+  dimension
+}
+
 dims_core <- list(
   Tradition = list(
     label = "Traditional vs Secular-Rational",
-    items = list(
-      wvs_item("A006", 1, 4, 1),
-      wvs_item("F063", 1, 10, -1),
-      wvs_item("F034", 1, 3, -1),
-      wvs_item("F028", 1, 8, 1),
-      wvs_item("F118", 1, 10, 1),
-      wvs_item("F120", 1, 10, 1),
-      wvs_item("F121", 1, 10, 1),
-      wvs_item("F122", 1, 10, 1)
-    )
+    type = "mean",
+    items = c("A006", "F063", "F034", "F028", "F118", "F120", "F121", "F122")
   ),
 
   Survival = list(
     label = "Survival vs Self-Expression",
-    items = list(
-      wvs_item("A008", 1, 4, -1),
-      wvs_item("A165", 1, 2, -1),
-      wvs_item("A173", 1, 10, 1),
-      wvs_item("A029", 0, 1, 1),
-      wvs_item("A034", 0, 1, 1),
-      wvs_item("A035", 0, 1, 1),
-      wvs_item("E025", 1, 3, -1),
-      wvs_item("F118", 1, 10, 1)
-    )
+    type = "mean",
+    items = c("A008", "A165", "A173", "A029", "A034", "A035", "E025", "F118")
   )
 )
 
 dims_main <- list(
   Institution = list(
     label = "Institutional Trust",
-    items = list(
-      wvs_item("E069_01", 1, 4, -1),
-      wvs_item("E069_02", 1, 4, -1),
-      wvs_item("E069_04", 1, 4, -1),
-      wvs_item("E069_06", 1, 4, -1),
-      wvs_item("E069_07", 1, 4, -1),
-      wvs_item("E069_08", 1, 4, -1),
-      wvs_item("E069_11", 1, 4, -1),
-      wvs_item("E069_12", 1, 4, -1),
-      wvs_item("E069_17", 1, 4, -1)
-    )
+    type = "mean",
+    items = c("E069_01", "E069_02", "E069_04", "E069_06", "E069_07", "E069_08", "E069_11", "E069_12", "E069_17")
   ),
 
   Moral = list(
     label = "Moral Permissiveness",
-    items = list(
-      wvs_item("F118", 1, 10, 1),
-      wvs_item("F119", 1, 10, 1),
-      wvs_item("F120", 1, 10, 1),
-      wvs_item("F121", 1, 10, 1),
-      wvs_item("F122", 1, 10, 1),
-      wvs_item("F123", 1, 10, 1)
-    )
+    type = "mean",
+    items = c("F118", "F119", "F120", "F121", "F122", "F123")
   ),
 
   Gender = list(
     label = "Gender Equality",
-    items = list(
-      wvs_item("C001_01", 1, 5, 1),
-      wvs_item("D059", 1, 4, 1),
-      wvs_item("D061", 1, 4, 1),
-      wvs_item("D078", 1, 4, 1),
-      wvs_item("E233", 0, 10, 1)
-    )
+    type = "mean",
+    items = c("C001_01", "D059", "D061", "D078", "E233")
   ),
 
   Civic = list(
     label = "Civic Engagement",
-    items = list(
-      wvs_item("E026", 1, 3, -1),
-      wvs_item("E027", 1, 3, -1),
-      wvs_item("E028", 1, 3, -1),
-      wvs_item("E025", 1, 3, -1)
-    )
+    type = "mean",
+    items = c("E026", "E027", "E028", "E025")
   )
 )
 
 dims_extended <- list(
   Political = list(
     label = "Political Engagement",
-    items = list(
-      wvs_item("A068", 0, 1, 1),
-      wvs_item("E025", 1, 3, -1),
-      wvs_item("E026", 1, 3, -1),
-      wvs_item("E027", 1, 3, -1),
-      wvs_item("E028", 1, 3, -1)
-    )
+    type = "mean",
+    items = c("A068", "E025", "E026", "E027", "E028")
   ),
 
   Social = list(
     label = "Social Trust",
-    items = list(
-      wvs_item("A165", 1, 2, -1),
-      wvs_item("G007_34_B", 1, 4, -1),
-      wvs_item("G007_35_B", 1, 4, -1),
-      wvs_item("G007_36_B", 1, 4, -1)
-    )
+    type = "mean",
+    items = c("A165", "G007_34_B", "G007_35_B", "G007_36_B")
   ),
 
   Economic = list(
     label = "Market Orientation",
-    items = list(
-      wvs_item("E035", 1, 10, 1),
-      wvs_item("E036", 1, 10, -1),
-      wvs_item("E037", 1, 10, -1),
-      wvs_item("E039", 1, 10, -1)
-    )
+    type = "mean",
+    items = c("E035", "E036", "E037", "E039")
   ),
 
   Wellbeing = list(
     label = "Subjective Wellbeing",
-    items = list(
-      wvs_item("A008", 1, 4, -1),
-      wvs_item("A009", 1, 5, -1),
-      wvs_item("A170", 1, 10, 1),
-      wvs_item("A173", 1, 10, 1)
-    )
+    type = "mean",
+    items = c("A008", "A009", "A170", "A173")
   ),
 
   Democracy = list(
     label = "Liberal Democracy Support",
-    items = list(
-      wvs_item("E114", 1, 4, 1),
-      wvs_item("E116", 1, 4, 1),
-      wvs_item("E117", 1, 4, -1),
-      wvs_item("E225", 0, 10, -1),
-      wvs_item("E226", 0, 10, 1),
-      wvs_item("E228", 0, 10, -1),
-      wvs_item("E229", 0, 10, 1)
-    )
+    type = "mean",
+    items = c("E114", "E116", "E117", "E225", "E226", "E228", "E229")
   )
 )
 
-dims_all <- c(dims_core, dims_main, dims_extended)
+dims_dev <- list(
+  TraditionalSecular = list(
+    label = "Traditional vs Secular-Rational", 
+    type = "mean", 
+    items = c("F063", "G006", "E018", "F120")
+  ),
 
-wvs_names <- function(dimensions = dims_all) {
-  names(dimensions)
-}
+  SurvivalSelfExpression = list(
+    label = "Survival vs Self-Expression", 
+    type = "mean", 
+    items = c("A008", "A165", "F118", "E025")
+  ),
+  
+  Autonomy = list(
+    label = "Autonomy", 
+    type = "contrast", 
+    positive = c("A029", "A039"), 
+    negative = c("A040", "A042")
+  ),
 
-wvs_items <- function(dimensions = dims_all) {
-  rows <- unlist(
-    lapply(names(dimensions), function(dim_name) {
-      lapply(dimensions[[dim_name]]$items, function(item) {
-        data.frame(
-          dimension = dim_name,
-          dimension_label = dimensions[[dim_name]]$label,
-          variable = item$var,
-          item_label = item$label,
-          direction = item$direction,
-          original_min = item$original_min,
-          original_max = item$original_max,
-          stringsAsFactors = FALSE
-        )
-      })
-    }),
-    recursive = FALSE
+  Postmaterialism = list(
+    label = "Postmaterialism", 
+    type = "lookup", 
+    vars = c("E001", "E002")
+  ),
+
+  LifeSatisfaction = list(
+    label = "Life Satisfaction", 
+    type = "mean", 
+    items = c("A008", "A170", "A009")
+  ),
+
+  PersonalAgency = list(
+    label = "Personal Agency", 
+    type = "mean", 
+    items = c("A173", "A029", "A039")
+  ),
+
+  Religiosity = list(
+    label = "Religiosity", 
+    type = "mean", 
+    items = c("A006", "F028", "F034", "F050", "F063")
+  ),
+
+  SupernaturalBelief = list(
+    label = "Supernatural Belief", 
+    type = "mean", 
+    items = c("F050", "F051", "F053", "F054")
+  ),
+
+  SexualPermissiveness = list(
+    label = "Sexual Permissiveness", 
+    type = "mean", 
+    items = c("F118", "F119", "F120", "F121", "F132")
+  ),
+
+  EndOfLifePermissiveness = list(
+    label = "End-of-life Permissiveness", 
+    type = "mean", 
+    items = c("F122", "F123")
+  ),
+
+  CivicMorality = list(
+    label = "Civic Morality", 
+    type = "mean", 
+    items = c("F114A", "F115", "F116", "F117")
+  ),
+
+  PoliticalParticipation = list(
+    label = "Political Participation", 
+    type = "mean", 
+    items = c("E025", "E026", "E027", "E028")
+  ),
+
+  PoliticalInterest = list(
+    label = "Political Interest", 
+    type = "mean", 
+    items = c("E023")
+  ),
+
+  InstitutionalTrust = list(
+    label = "Institutional Trust", 
+    type = "mean", 
+    items = c("E069_01", "E069_06", "E069_07", "E069_11", "E069_17")
+  ),
+
+  DemocraticValues = list(
+    label = "Democratic Values", 
+    type = "mean", 
+    items = c("E117", "E226", "E229", "E233", "E235")
+  ),
+
+  EconomicIdeology = list(
+    label = "Economic Ideology", 
+    type = "mean", 
+    items = c("E035", "E036", "E037", "E039")
+  ),
+
+  GenderTraditionalism = list(
+    label = "Gender Traditionalism", 
+    type = "mean", 
+    items = c("D059", "D060", "D061", "D078")
+  ),
+
+  FilialObligation = list(
+    label = "Filial Obligation", 
+    type = "mean", 
+    items = c("D026_03", "D026_05", "D054")
+  ),
+
+  FamilyTraditionalism = list(
+    label = "Family Traditionalism", 
+    type = "mean", 
+    items = c("D081", "D059", "D061")
+  ),
+
+  Environmentalism = list(
+    label = "Environmentalism", 
+    type = "mean", 
+    items = c("B008", "A071")
+  ),
+
+  WorkEthic = list(
+    label = "Work Ethic", 
+    type = "mean", 
+    items = c("C038", "C039", "C041")
+  ),
+
+  NationalAttachment = list(
+    label = "National Attachment", 
+    type = "mean", 
+    items = c("G006", "G255", "G256", "G257")
+  ),
+
+  GlobalIdentity = list(
+    label = "Global Identity", 
+    type = "mean", 
+    items = c("G062", "G063")
+  ),
+
+  ImmigrationAcceptance = list(
+    label = "Immigration Acceptance", 
+    type = "mean", 
+    items = c("A124_06", "G052")
+  ),
+
+  GeneralizedTrust = list(
+    label = "Generalized Trust", 
+    type = "mean", 
+    items = c("A165")
+  ),
+
+  OutgroupTrust = list(
+    label = "Outgroup Trust", 
+    type = "mean", 
+    items = c("G007_35_B", "G007_36_B")
+  ),
+
+  SecurityOrientation = list(
+    label = "Security Orientation", 
+    type = "mean", 
+    items = c("H009", "H010", "H011")
+  )
+)
+
+# Combine default and dev dimensions, preserving legacy names for backward compatibility
+dims_all <- c(dims_core, dims_main, dims_extended, dims_dev)
+
+# Return a data.frame listing dimensions and their metadata
+#' List available dimensions and metadata
+#'
+#' Return a data.frame with one row per dimension, including its
+#' assigned group (Core/Main/Extended/Dev), label and type where
+#' available.
+#'
+#' @param dimensions Named list of dimension definitions (default
+#'   `dims_all`).
+#' @return Data.frame with columns `dimension`, `group`, `label`, and
+#'   `type`.
+#' @export
+wvs_dimensions <- function(dimensions = dims_all) {
+  groups <- list(
+    Core = names(dims_core),
+    Main = names(dims_main),
+    Extended = names(dims_extended)
   )
 
-  do.call(rbind, rows)
-}
-
-wvs_validate <- function(data, dimensions = dims_all) {
-  items <- wvs_items(dimensions)
-  items$available <- items$variable %in% names(data)
-
-  var_labels <- attr(data, "var.labels")
-  if (!is.null(var_labels)) {
-    names(var_labels) <- names(data)
-    items$source_label <- unname(var_labels[items$variable])
-  } else {
-    items$source_label <- NA_character_
-  }
-
-  observed <- lapply(items$variable, function(var) {
-    if (!var %in% names(data)) {
-      return(c(observed_min = NA_real_, observed_max = NA_real_))
-    }
-
-    values <- suppressWarnings(as.numeric(data[[var]]))
-    values <- values[is.finite(values) & values >= 0]
-    if (length(values) == 0) {
-      return(c(observed_min = NA_real_, observed_max = NA_real_))
-    }
-
-    range(values, na.rm = TRUE)
+  dims <- names(dimensions)
+  rows <- lapply(dims, function(nm) {
+    grp <- if (nm %in% groups$Core) "Core" else if (nm %in% groups$Main) "Main" else if (nm %in% groups$Extended) "Extended" else "Dev"
+    d <- dimensions[[nm]]
+    title <- if (!is.null(d$label)) d$label else nm
+    type <- if (!is.null(d$type)) d$type else "mean"
+    data.frame(dimension = nm, title = title, group = grp, type = type, stringsAsFactors = FALSE)
   })
-  observed <- do.call(rbind, observed)
-  colnames(observed) <- c("observed_min", "observed_max")
-  items$observed_min <- observed[, "observed_min"]
-  items$observed_max <- observed[, "observed_max"]
 
-  items
+  if (length(rows) == 0) return(data.frame())
+  do.call(rbind, rows)
 }

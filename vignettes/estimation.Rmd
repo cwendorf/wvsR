@@ -8,17 +8,13 @@ vignette: >
 ---
 
 ```{r setup, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
-)
+knitr::opts_chunk$set(fig.width = 7, fig.height = 7, fig.path = "figures/", echo = TRUE, warning = FALSE, message = FALSE, comment = NA)
+devtools::source_gist("8e6e5dc401e3fc1042ef7a030f9d19c7", filename = "revised_toc.R")
 ```
 
 ```{r, include=FALSE}
-if (!require(wvsR)) {
-  if (!require(remotes)) install.packages("remotes")
-  remotes::install_github("cwendorf/wvsR")
-}
+if (!require(remotes)) install.packages("remotes")
+if (!require(wvsR)) {remotes::install_github("cwendorf/wvsR")}
 library(wvsR)
 ```
 
@@ -31,7 +27,7 @@ uncertainty.
 
 This means:
 
-- Point estimates (means) are accompanied by 95% confidence intervals.
+- Point estimates (means) are accompanied by confidence intervals.
 - Comparisons report the mean difference in the original metric along with
   the CI, not just a significance test.
 - Effect sizes (Cohen's d) contextualise how large a difference is relative
@@ -40,7 +36,8 @@ This means:
 ### Country Profiles
 
 `wvs_profile()` estimates each selected dimension for one country and returns
-the mean, 95 percent confidence interval, and valid respondent count.
+the mean, confidence interval, and valid respondent count.
+Its default plot overlays respondent-level jittered scores.
 
 ```{r}
 wvs_profile(
@@ -50,7 +47,7 @@ wvs_profile(
 ```
 
 ```{r}
-cp <- wvs_profile(
+wvs_profile(
   "US",
   dimensions = dims_extended
 ) |> plot()
@@ -62,23 +59,50 @@ The same function can use specified dimensions instead.
 wvs_profile(
   "US",
   select = c("Tradition", "Survival")
-)
+) |> plot()
 ```
 
-### Country Differences
+### Country Comparisons
 
-`wvs_difference()` estimates the difference between countries on each selected
-dimension. Positive values mean the first country scored higher.
+Use `wvs_compare()` to prepare mean tables separately for the two countries.
+It is also useful for comparison plotting and includes respondent-level
+jitter points.
 
 ```{r}
-wvs_difference(
+wvs_compare(
   countries = c("US", "CA"),
   dimensions = dims_extended
 )
 ```
 
 ```{r}
-cd <- wvs_difference(
+wvs_compare(
+  countries = c("US", "CA"),
+  dimensions = dims_extended
+) |> plot()
+```
+
+```{r}
+wvs_compare(
+  countries = c("US", "CA"),
+  select = c("Tradition", "Survival")
+) |> plot()
+```
+
+### Country Differences
+
+`wvs_difference()` estimates the difference between countries on each selected
+dimension. Positive values mean the first country scored higher. 
+
+```{r}
+wvs_difference(
+  countries = c("US", "CA"),
+  dimensions = dims_core
+)
+```
+
+```{r}
+wvs_difference(
   countries = c("US", "CA"),
   dimensions = dims_extended
 ) |> plot()
@@ -88,21 +112,12 @@ cd <- wvs_difference(
 wvs_difference(
   countries = c("US", "CA"),
   select = c("Tradition", "Survival")
-)
-```
-
-Use `wvs_compare()` to prepare mean tables separately for the two countries. It is also useful for comparison plotting.
-
-```{r}
-wvs_compare(
-  countries = c("US", "CA"),
-  dimensions = dims_extended
-)
-```
-
-```{r}
-wvs_compare(
-  countries = c("US", "CA"),
-  dimensions = dims_extended
 ) |> plot()
+```
+
+```{r}
+wvs_difference(
+  countries = c("US", "CA"),
+  dimensions = c(dims_core, dims_main)
+)
 ```

@@ -8,7 +8,7 @@
 ### Overview
 
 `wvsR` is an estimation-focused toolkit for cross-cultural comparison
-using the EVS/WVS Joint Dataset. In addition to building six cultural dimensions directly
+using the EVS/WVS Joint Dataset. In addition to building cultural scores directly
 from survey items, the package prioritizes uncertainty-aware inference:
 
 - Country profiles with confidence intervals
@@ -31,6 +31,16 @@ If you do not want a full install, source the latest function bundle directly:
 ```r
 source("https://raw.githubusercontent.com/cwendorf/cultureCompareR/main/source-wvsR.R")
 ```
+
+### Usage
+
+This package includes the following documentation:
+
+- [Introduction](./docs/README.md): A quick overview and summary of the package.
+- [Data Basics](./docs/basics.md): Functions for country coverage, the survey items, and the available dimensions.
+- [Estimation Approach](./docs/estimation.md): Functions for getting country profiles, comparisons of countries, and country differences.
+- [Cultural Distances](./docs/distances.md): Functions for dimension mapping, identification of most similar countries, and clustering.
+- [Custom Dimensions](./docs/custom.md): Functions for building and using custom dimensions.
 
 ### Contact
 

@@ -1,7 +1,20 @@
-# Data access functions
+# wvsR
+## Data Access Functions
 
 wvs_cache <- new.env(parent = emptyenv())
 
+#' Locate the bundled joint dataset or use a provided path
+#'
+#' Resolve the path to the joint EVS/WVS dataset. If `path` is
+#' provided it is validated and returned; otherwise this function
+#' searches common locations in the repository, system data, and a
+#' remote fallback URL. Returned paths are normalized for Windows.
+#'
+#' @param path Optional path to a local data file. If provided it must
+#'   exist.
+#' @return Character scalar with the resolved path to the data file.
+#' @keywords internal
+#' @noRd
 wvs_path <- function(path = NULL) {
 
   if (!is.null(path)) {
@@ -11,34 +24,41 @@ wvs_path <- function(path = NULL) {
     return(normalizePath(path, winslash = "/", mustWork = TRUE))
   }
 
-  filename <- "EVS_WVS_Joint_Rrds_v5_0.rds"
+  # prefer the repository .rds
+  filenames <- c("EVS_WVS_Joint_Rrds_v5_0.rds")
 
-  candidates <- c(
-    file.path(getwd(), "data", filename),
-    file.path(dirname(getwd()), "data", filename),
-    file.path(dirname(dirname(getwd())), "data", filename),
-    system.file("data", filename, package = "wvsR")
-  )
+  candidates <- unlist(lapply(filenames, function(filename) {
+    c(
+      file.path(getwd(), "data", filename),
+      file.path(dirname(getwd()), "data", filename),
+      file.path(dirname(dirname(getwd())), "data", filename),
+      system.file("data", filename, package = "wvsR")
+    )
+  }))
 
   candidates <- candidates[nzchar(candidates) & file.exists(candidates)]
 
-  if (length(candidates))
-    return(normalizePath(candidates[[1]], winslash = "/", mustWork = TRUE))
+  if (length(candidates)) return(normalizePath(candidates[[1]], winslash = "/", mustWork = TRUE))
 
-  cache_file <- file.path(tempdir(), filename)
-
-  if (!file.exists(cache_file)) {
-    utils::download.file(
-      "https://github.com/cwendorf/wvsR/raw/main/data/EVS_WVS_Joint_Rrds_v5_0.rds",
-      cache_file,
-      mode = "wb"
-    )
-  }
-
-  cache_file
+  stop(
+    "Data file 'EVS_WVS_Joint_Rrds_v5_0.rds' not found in repository. ",
+    "Provide a valid `path` to the RDS file or add the file to the package data.",
+    call. = FALSE
+  )
 }
 
-wvs_load_joint <- function(path = NULL) {
+#' Load the joint EVS/WVS dataset into memory (with caching)
+#'
+#' Read the joint dataset from a path resolved by `wvs_path()` and
+#' return it as an R object. Results are cached in-memory for the
+#' lifetime of the R session to avoid repeated I/O.
+#'
+#' @param path Optional path to a local data file; passed to
+#'   `wvs_path()`.
+#' @return A data.frame (or tibble) containing the joint dataset.
+#' @keywords internal
+#' @noRd
+wvs_load <- function(path = NULL) {
 
   resolved_path <- wvs_path(path)
 
@@ -48,6 +68,7 @@ wvs_load_joint <- function(path = NULL) {
     return(get(cache_key, envir = wvs_cache, inherits = FALSE))
   }
 
+  # read the RDS file
   data <- readRDS(resolved_path)
 
   assign(cache_key, data, envir = wvs_cache)
@@ -55,7 +76,14 @@ wvs_load_joint <- function(path = NULL) {
   data
 }
 
-wvs_clear_cache <- function() {
+#' Clear in-memory dataset cache
+#'
+#' Remove any cached datasets stored by `wvs_load()` from the
+#' package internal cache environment.
+#' @return Invisibly returns `NULL`.
+#' @keywords internal
+#' @noRd
+wvs_clear <- function() {
   rm(
     list = ls(envir = wvs_cache, all.names = TRUE),
     envir = wvs_cache
@@ -63,12 +91,24 @@ wvs_clear_cache <- function() {
   invisible(NULL)
 }
 
+#' Subset the joint dataset by country and/or wave
+#'
+#' Return rows of the joint dataset filtered by `country` and/or
+#' `wave`. `country` may be a country name or ISO code and is
+#' resolved using `wvs_resolve()`.
+#'
+#' @param country Optional country name or ISO code to filter by.
+#' @param wave Optional wave number to filter by.
+#' @param path Optional path to data; passed to `wvs_load()`.
+#' @return Filtered data.frame of survey responses.
+#' @keywords internal
+#' @noRd
 wvs_data <- function(country = NULL, wave = NULL, path = NULL) {
 
-  data <- wvs_load_joint(path)
+  data <- wvs_load(path)
 
   if (!is.null(country)) {
-    iso <- wvs_resolve_country(country, data)
+    iso <- wvs_resolve(country, data)
     data <- data[
       as.character(data$cntry_AN) == iso,
       ,
@@ -94,31 +134,81 @@ wvs_data <- function(country = NULL, wave = NULL, path = NULL) {
   data
 }
 
-wvs_countries <- function(wave = NULL, path = NULL) {
+#' List available countries (or info for one or more countries)
+#'
+#' When called without `countries`, returns a data.frame listing ISO
+#' code, display name and number of respondents for each country in
+#' the joint dataset (optionally restricted to a specific `wave`).
+#' When `countries` is provided, returns a `wvs_countries` object with
+#' data for the requested country or countries.
+#'
+#' @param countries Optional country name(s) or ISO code(s) to query.
+#' @param wave Optional wave number to restrict the dataset.
+#' @param path Optional path to data; passed to `wvs_load()`.
+#' @return A `wvs_countries` object with `title`, `wave`, and `countries`.
+#' @export
+wvs_countries <- function(countries = NULL, wave = NULL, path = NULL) {
 
   data <- wvs_data(wave = wave, path = path)
 
-  countries <- stats::aggregate(
+  if (!is.null(countries)) {
+    countries <- as.character(countries)
+    isos <- vapply(countries, .wvs_resolve, character(1))
+    n <- vapply(isos, function(iso) sum(as.character(data$cntry_AN) == iso), integer(1))
+
+    missing <- which(n == 0L)
+    if (length(missing)) {
+      stop(
+        sprintf("Country '%s' (%s) is not available in this dataset.", countries[[missing[1]]], isos[[missing[1]]]),
+        call. = FALSE
+      )
+    }
+
+    countries_df <- data.frame(
+      iso = isos,
+      country = vapply(isos, .wvs_iso, character(1)),
+      n = unname(n),
+      stringsAsFactors = FALSE,
+      row.names = NULL
+    )
+
+    out <- list(
+      title = "COUNTRY INFORMATION",
+      wave = wave,
+      countries = countries_df
+    )
+    class(out) <- c("wvs_countries", "wvsR")
+    return(out)
+  }
+
+  countries_df <- stats::aggregate(
     uniqid ~ cntry_AN,
     data = data,
     FUN = length
   )
 
-  names(countries) <- c("iso", "n")
+  names(countries_df) <- c("iso", "n")
 
-  countries$country <- vapply(
-    countries$iso,
-    .iso_to_name,
+  countries_df$country <- vapply(
+    countries_df$iso,
+    .wvs_iso,
     character(1)
   )
 
-  countries <- countries[, c("iso", "country", "n")]
+  countries_df <- countries_df[, c("iso", "country", "n")]
+  countries_df <- countries_df[order(countries_df$iso), , drop = FALSE]
 
-  countries[order(countries$iso), , drop = FALSE]
+  out <- list(
+    title = "COUNTRY INFORMATION",
+    wave = wave,
+    countries = countries_df
+  )
+  class(out) <- c("wvs_countries", "wvsR")
+  out
 }
 
 # ISO 2-letter country code lookup (name -> code)
-.country_lookup <- c(
+.wvs_lookup <- c(
   "Albania"                  = "AL",
   "Algeria"                  = "DZ",
   "Andorra"                  = "AD",
@@ -224,13 +314,24 @@ wvs_countries <- function(wave = NULL, path = NULL) {
   "Zimbabwe"                 = "ZW"
 )
 
-# Resolve a country argument to its ISO code
-wvs_resolve_country <- function(country, data = NULL, path = NULL) {
+#' Resolve a country argument to its ISO code and validate availability
+#'
+#' Convert a country name or ISO code to the canonical two-letter
+#' ISO code used in the dataset and check that the code is present in
+#' the provided dataset (or the joint dataset if none provided).
+#'
+#' @param country Character name or ISO code for a country.
+#' @param data Optional dataset to check availability against.
+#' @param path Optional path to data; used when `data` is NULL.
+#' @return Upper-case two-letter ISO code as a character scalar.
+#' @keywords internal
+#' @noRd
+wvs_resolve <- function(country, data = NULL, path = NULL) {
   if (is.null(data)) {
-    data <- wvs_load_joint(path)
+    data <- wvs_load(path)
   }
 
-  iso <- .resolve_country(country)
+  iso <- .wvs_resolve(country)
 
   available <- unique(as.character(data$cntry_AN))
 
@@ -244,52 +345,41 @@ wvs_resolve_country <- function(country, data = NULL, path = NULL) {
   iso
 }
 
-# Resolve a country argument to its ISO code
-.resolve_country <- function(x) {
+#' Resolve a country argument to its ISO code
+#'
+#' This internal helper implements the lookup logic for country
+#' resolution. It is not exported.
+#'
+#' @param x Country name or ISO code.
+#' @return Two-letter ISO code (character scalar) or error if not
+#'   recognised.
+#' @keywords internal
+.wvs_resolve <- function(x) {
   x <- trimws(x)
   # Already an ISO code?
-  all_codes <- unique(unname(.country_lookup))
+  all_codes <- unique(unname(.wvs_lookup))
   if (toupper(x) %in% toupper(all_codes)) {
     return(toupper(x))
   }
   # Try case-insensitive name match
-  idx <- match(tolower(x), tolower(names(.country_lookup)))
+  idx <- match(tolower(x), tolower(names(.wvs_lookup)))
   if (!is.na(idx)) {
-    return(.country_lookup[[idx]])
+    return(.wvs_lookup[[idx]])
   }
   stop(sprintf("Country not recognised: '%s'.\nUse wvs_data() to see available countries.", x))
 }
 
-# Return a country's display name from an ISO code
-.iso_to_name <- function(code) {
+#' Return a country's display name from an ISO code
+#'
+#' Translate a two-letter ISO code to the display name used in the
+#' package's lookup table. This is an internal helper and not
+#' exported.
+#'
+#' @param code Two-letter ISO code.
+#' @return Country display name or the input code if unknown.
+#' @keywords internal
+.wvs_iso <- function(code) {
   code <- toupper(code)
-  idx <- match(code, .country_lookup)
-  if (!is.na(idx)) names(.country_lookup)[idx] else code
-}
-
-wvs_country <- function(country, wave = NULL, path = NULL) {
-  data <- wvs_data(wave = wave, path = path)
-
-  iso <- .resolve_country(country)
-
-  n <- sum(as.character(data$cntry_AN) == iso)
-
-  if (n == 0) {
-    stop(
-      sprintf("Country '%s' (%s) is not available in this dataset.", country, iso),
-      call. = FALSE
-    )
-  }
-
-  data.frame(
-    iso = iso,
-    country = .iso_to_name(iso),
-    n = n,
-    row.names = NULL
-  )
-}
-
-wvs_variables <- function(dimensions = dims_all, path = NULL) {
-  data <- wvs_load_joint(path)
-  wvs_validate(data, dimensions)
+  idx <- match(code, .wvs_lookup)
+  if (!is.na(idx)) names(.wvs_lookup)[idx] else code
 }
