@@ -35,7 +35,7 @@ wvs_profile <- function(
   select = NULL,
   strict = FALSE,
   ci_level = 0.99,
-  max_points = 1500,
+  max_points = 5000,
   seed = NULL,
   path = NULL
 ) {
