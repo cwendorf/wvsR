@@ -105,6 +105,13 @@ resolve_dimension <- function(dimension) {
   dimension
 }
 
+#' Dimension definitions
+#'
+#' Predefined dimension definitions used by `wvsR` and examples.
+#' @name dims_core
+#' @rdname dims_definitions
+#' @format A named list of dimension definitions.
+#' @export
 dims_core <- list(
   Tradition = list(
     label = "Traditional vs Secular-Rational",
@@ -119,6 +126,9 @@ dims_core <- list(
   )
 )
 
+#' @rdname dims_definitions
+#' @format A named list of dimension definitions.
+#' @export
 dims_main <- list(
   Institution = list(
     label = "Institutional Trust",
@@ -145,6 +155,9 @@ dims_main <- list(
   )
 )
 
+#' @rdname dims_definitions
+#' @format A named list of dimension definitions.
+#' @export
 dims_extended <- list(
   Political = list(
     label = "Political Engagement",
@@ -177,6 +190,9 @@ dims_extended <- list(
   )
 )
 
+#' @rdname dims_definitions
+#' @format A named list of dimension definitions.
+#' @export
 dims_dev <- list(
   TraditionalSecular = list(
     label = "Traditional vs Secular-Rational", 
@@ -343,6 +359,9 @@ dims_dev <- list(
 )
 
 # Combine default and dev dimensions, preserving legacy names for backward compatibility
+#' @rdname dims_definitions
+#' @format A named list of dimension definitions.
+#' @export
 dims_all <- c(dims_core, dims_main, dims_extended, dims_dev)
 
 # Return a data.frame listing dimensions and their metadata

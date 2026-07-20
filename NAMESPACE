@@ -2,6 +2,11 @@
 export(wvs_countries)
 export(wvs_items)
 export(wvs_dimensions)
+export(dims_core)
+export(dims_main)
+export(dims_extended)
+export(dims_dev)
+export(dims_all)
 
 export(wvs_space)
 export(wvs_neighbors)
