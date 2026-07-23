@@ -13,6 +13,7 @@
 wvs_clean_numeric <- function(x) {
   if (inherits(x, c("haven_labelled", "labelled", "labelled_spss"))) {
     x <- unclass(x)
+    attributes(x) <- NULL
   }
   if (is.factor(x)) {
     x <- as.character(x)

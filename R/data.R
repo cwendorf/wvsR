@@ -91,6 +91,17 @@ wvs_clear <- function() {
   invisible(NULL)
 }
 
+wvs_safe_integer <- function(x) {
+  if (inherits(x, c("haven_labelled", "labelled", "labelled_spss"))) {
+    x <- unclass(x)
+    attributes(x) <- NULL
+  }
+  if (is.factor(x)) {
+    x <- as.character(x)
+  }
+  suppressWarnings(as.integer(x))
+}
+
 #' Subset the joint dataset by country and/or wave
 #'
 #' Return rows of the joint dataset filtered by `country` and/or
@@ -118,7 +129,7 @@ wvs_data <- function(country = NULL, wave = NULL, path = NULL) {
 
   if (!is.null(wave)) {
     data <- data[
-      as.integer(data$wave) == as.integer(wave),
+      wvs_safe_integer(data$wave) == wvs_safe_integer(wave),
       ,
       drop = FALSE
     ]
