@@ -11,6 +11,12 @@
 #' @return Numeric vector with negative values set to `NA`.
 #' @keywords internal
 wvs_clean_numeric <- function(x) {
+  if (inherits(x, c("haven_labelled", "labelled", "labelled_spss"))) {
+    x <- unclass(x)
+  }
+  if (is.factor(x)) {
+    x <- as.character(x)
+  }
   x <- suppressWarnings(as.numeric(x))
   x[x < 0] <- NA_real_
   x

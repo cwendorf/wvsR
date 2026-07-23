@@ -39,100 +39,6 @@ wvs_profile <- function(
   seed = NULL,
   path = NULL
 ) {
-  out <- wvs_profile_jitter(
-    country = country,
-    wave = wave,
-    dimensions = dimensions,
-    select = select,
-    strict = strict,
-    ci_level = ci_level,
-    max_points = max_points,
-    seed = seed,
-    path = path
-  )
-  class(out) <- c("wvs_profile", "wvsR")
-  out
-}
-
-
-#' Plot a `wvs_profile` object
-#'
-#' Draws a forest-style plot of mean scores and confidence intervals
-#' for each cultural dimension in a `wvs_profile` object.
-#'
-#' @param x A `wvs_profile` object as returned by `wvs_profile()`.
-#' @param jitter_height Vertical jitter width around each dimension row.
-#' @param jitter_width Horizontal jitter width applied to respondent
-#'   scores.
-#' @param point_cex Expansion factor for jitter point size.
-#' @param point_alpha Alpha for jitter points in `[0, 1]`.
-#' @param point_col Base color used for jitter points.
-#' @param mean_cex Expansion factor for mean marker size.
-#' @param ... Additional plotting arguments (ignored).
-#' @return The input object invisibly.
-#' @export
-plot.wvs_profile <- function(
-  x,
-  jitter_height = 0.14,
-  jitter_width = 0.03,
-  point_cex = 0.5,
-  point_alpha = 0.08,
-  point_col = "grey30",
-  mean_cex = 1.2,
-  ...
-) {
-  class(x) <- c("wvs_profile_jitter", "wvsR")
-  plot.wvs_profile_jitter(
-    x,
-    jitter_height = jitter_height,
-    jitter_width = jitter_width,
-    point_cex = point_cex,
-    point_alpha = point_alpha,
-    point_col = point_col,
-    mean_cex = mean_cex,
-    ...
-  )
-}
-
-
-#' Compute a jitter-ready cultural profile for a single country
-#'
-#' Computes the same mean and confidence interval summaries as
-#' `wvs_profile()`, and also stores respondent-level dimension scores
-#' for jitter visualization.
-#'
-#' @param country Character string specifying the country name or code.
-#' @param wave Optional numeric or character wave identifier. If NULL,
-#'   the default (most recent) wave is used where applicable.
-#' @param dimensions A named list of dimension definitions (default
-#'   `dims_all`).
-#' @param select Optional vector of variables to select before scoring.
-#' @param strict Logical; if TRUE, use strict scoring rules when
-#'   computing dimension scores.
-#' @param ci_level Confidence level for profile intervals in `(0, 1)`.
-#'   Defaults to `0.99`.
-#' @param max_points Optional maximum number of jitter points per
-#'   dimension. Set to `NULL` to plot all finite scores.
-#' @param seed Optional integer seed used when downsampling points via
-#'   `max_points`.
-#' @param path Optional path to a local data file; passed to
-#'   `wvs_data()`.
-#' @return An object of class `wvs_profile_jitter` (and `wvsR`)
-#'   containing `title`, `country`, `wave`, `means` (summary table),
-#'   and `points` (respondent-level scores for plotting).
- #' @keywords internal
- #' @noRd
-wvs_profile_jitter <- function(
-  country,
-  wave = NULL,
-  dimensions = dims_all,
-  select = NULL,
-  strict = FALSE,
-  ci_level = 0.99,
-  max_points = 1500,
-  seed = NULL,
-  path = NULL
-) {
   if (!is.numeric(ci_level) || length(ci_level) != 1 || !is.finite(ci_level) || ci_level <= 0 || ci_level >= 1) {
     stop("ci_level must be a single numeric value in (0, 1).", call. = FALSE)
   }
@@ -196,18 +102,18 @@ wvs_profile_jitter <- function(
     means = do.call(rbind, mean_rows),
     points = do.call(rbind, point_rows)
   )
-  class(out) <- c("wvs_profile_jitter", "wvsR")
+  class(out) <- c("wvs_profile", "wvsR")
   out
 }
 
 
-#' Plot a `wvs_profile_jitter` object
+#' Plot a `wvs_profile` object
 #'
-#' Draws respondent-level jitter points for each dimension with mean
-#' estimates and confidence intervals overlaid.
+#' Draws a forest-style plot of mean scores and confidence
+#' intervals for each cultural dimension in a `wvs_profile` object,
+#' with respondent-level jitter points overlaid.
 #'
-#' @param x A `wvs_profile_jitter` object as returned by
-#'   `wvs_profile_jitter()`.
+#' @param x A `wvs_profile` object as returned by `wvs_profile()`.
 #' @param jitter_height Vertical jitter width around each dimension row.
 #' @param jitter_width Horizontal jitter width applied to respondent
 #'   scores.
@@ -217,9 +123,8 @@ wvs_profile_jitter <- function(
 #' @param mean_cex Expansion factor for mean marker size.
 #' @param ... Additional plotting arguments (ignored).
 #' @return The input object invisibly.
- #' @keywords internal
- #' @noRd
-plot.wvs_profile_jitter <- function(
+#' @export
+plot.wvs_profile <- function(
   x,
   jitter_height = 0.14,
   jitter_width = 0.03,
@@ -229,7 +134,6 @@ plot.wvs_profile_jitter <- function(
   mean_cex = 1.2,
   ...
 ) {
-
   tbl <- x$means
   pts <- x$points
 
@@ -278,7 +182,6 @@ plot.wvs_profile_jitter <- function(
     graphics::mtext(paste(subtitle_parts, collapse = "  |  "), side = 3, line = 0.7, cex = 0.95)
   }
 
-  # neutral midpoint of the score scale
   abline(v = 5, lty = 2, col = "grey70")
 
   ok_points <- is.finite(pts$score) & !is.na(pts$dimension)
@@ -307,7 +210,6 @@ plot.wvs_profile_jitter <- function(
     )
   }
 
-  # Solid mean marker to match the original profile plot style.
   points(
     estimate,
     y,
@@ -318,6 +220,7 @@ plot.wvs_profile_jitter <- function(
 
   invisible(x)
 }
+
 
 #' Estimate pairwise differences between two countries
 #'
@@ -520,7 +423,8 @@ plot.wvs_difference <- function(x, ...) {
 #' @return An object of class `wvs_compare` (and `wvsR`) containing
 #'   `title`, `countries`, `wave`, `means1`, `means2`, `points1`, and
 #'   `points2`. `means1`/`means2` are data.frames with `dimension`,
-#'   `label`, `mean`, `lower`, `upper`, `n`.
+#'   `label`, `mean`, `lower`, `upper`, `n`. `points1` and `points2`
+#'   contain respondent-level scores used for plotting.
 #' @export
 wvs_compare <- function(
   countries,
@@ -533,101 +437,6 @@ wvs_compare <- function(
   seed = NULL,
   path = NULL
 ) {
-  out <- wvs_compare_jitter(
-    countries = countries,
-    wave = wave,
-    dimensions = dimensions,
-    select = select,
-    strict = strict,
-    ci_level = ci_level,
-    max_points = max_points,
-    seed = seed,
-    path = path
-  )
-  class(out) <- c("wvs_compare", "wvsR")
-  out
-}
-
-#' Plot a `wvs_compare` object
-#'
-#' Draws side-by-side mean and confidence interval comparisons for two
-#' countries returned by `wvs_compare()`.
-#'
-#' @param x A `wvs_compare` object as returned by `wvs_compare()`.
-#' @param jitter_height Vertical jitter width around each country row.
-#' @param jitter_width Horizontal jitter width applied to respondent
-#'   scores.
-#' @param point_cex Expansion factor for jitter point size.
-#' @param point_alpha Alpha for jitter points in `[0, 1]`.
-#' @param col1 Color for country 1.
-#' @param col2 Color for country 2.
-#' @param mean_cex Expansion factor for mean marker size.
-#' @param ... Additional plotting arguments (ignored).
-#' @return The input object invisibly.
-#' @export
-plot.wvs_compare <- function(
-  x,
-  jitter_height = 0.09,
-  jitter_width = 0.03,
-  point_cex = 0.45,
-  point_alpha = 0.08,
-  col1 = "steelblue",
-  col2 = "tomato",
-  mean_cex = 1,
-  ...
-) {
-  class(x) <- c("wvs_compare_jitter", "wvsR")
-  plot.wvs_compare_jitter(
-    x,
-    jitter_height = jitter_height,
-    jitter_width = jitter_width,
-    point_cex = point_cex,
-    point_alpha = point_alpha,
-    col1 = col1,
-    col2 = col2,
-    mean_cex = mean_cex,
-    ...
-  )
-}
-
-
-#' Compute a jitter-ready comparison for two countries
-#'
-#' Computes the same country-level means and confidence intervals as
-#' `wvs_compare()`, and also stores respondent-level dimension scores
-#' for jitter visualization for each country.
-#'
-#' @param countries Character vector of length 2 with country names or
-#'   codes (country1, country2).
-#' @param wave Optional wave identifier passed to `wvs_data()`.
-#' @param dimensions A named list of dimension definitions (default
-#'   `dims_all`).
-#' @param select Optional variables to select before scoring.
-#' @param strict Logical; if TRUE, use strict scoring rules.
-#' @param ci_level Confidence level for comparison intervals in `(0, 1)`.
-#'   Defaults to `0.95`.
-#' @param max_points Optional maximum number of jitter points per
-#'   country-dimension. Set to `NULL` to plot all finite scores.
-#' @param seed Optional integer seed used when downsampling points via
-#'   `max_points`.
-#' @param path Optional path to local data; passed to `wvs_data()`.
-#' @return An object of class `wvs_compare_jitter` (and `wvsR`)
-#'   containing `title`, `countries`, `wave`, `means1`, `means2`,
-#'   `points1`, and `points2`.
- #' @keywords internal
- #' @noRd
-wvs_compare_jitter <- function(
-  countries,
-  wave = NULL,
-  dimensions = dims_all,
-  select = NULL,
-  strict = FALSE,
-  ci_level = 0.95,
-  max_points = 1500,
-  seed = NULL,
-  path = NULL
-) {
-
   if (length(countries) != 2) {
     stop("countries must be a character vector of length 2.", call. = FALSE)
   }
@@ -660,7 +469,6 @@ wvs_compare_jitter <- function(
   scores2 <- wvs_score_dimensions(data2, dimensions, select, strict)
 
   rows <- lapply(names(scores1), function(dim_name) {
-
     s1 <- scores1[[dim_name]]
     s2 <- scores2[[dim_name]]
 
@@ -673,42 +481,19 @@ wvs_compare_jitter <- function(
     data.frame(
       dimension = dim_name,
       label = dimensions[[dim_name]]$label,
-
-      mean1  = unname(stats1[["mean"]]),
+      mean1 = unname(stats1[["mean"]]),
       lower1 = unname(stats1[["lower"]]),
       upper1 = unname(stats1[["upper"]]),
-      n1     = unname(stats1[["n"]]),
-
-      mean2  = unname(stats2[["mean"]]),
+      n1 = unname(stats1[["n"]]),
+      mean2 = unname(stats2[["mean"]]),
       lower2 = unname(stats2[["lower"]]),
       upper2 = unname(stats2[["upper"]]),
-      n2     = unname(stats2[["n"]]),
-
+      n2 = unname(stats2[["n"]]),
       stringsAsFactors = FALSE
     )
   })
 
   means <- do.call(rbind, rows)
-
-  means1 <- data.frame(
-    dimension = means$dimension,
-    label     = means$label,
-    mean      = means$mean1,
-    lower     = means$lower1,
-    upper     = means$upper1,
-    n         = means$n1,
-    stringsAsFactors = FALSE
-  )
-
-  means2 <- data.frame(
-    dimension = means$dimension,
-    label     = means$label,
-    mean      = means$mean2,
-    lower     = means$lower2,
-    upper     = means$upper2,
-    n         = means$n2,
-    stringsAsFactors = FALSE
-  )
 
   point_rows1 <- lapply(names(scores1), function(dimension_name) {
     s <- scores1[[dimension_name]]
@@ -753,24 +538,37 @@ wvs_compare_jitter <- function(
       .wvs_iso(wvs_resolve(country2, data2))
     ),
     wave = wave,
-    means1 = means1,
-    means2 = means2,
+    means1 = data.frame(
+      dimension = means$dimension,
+      label = means$label,
+      mean = means$mean1,
+      lower = means$lower1,
+      upper = means$upper1,
+      n = means$n1,
+      stringsAsFactors = FALSE
+    ),
+    means2 = data.frame(
+      dimension = means$dimension,
+      label = means$label,
+      mean = means$mean2,
+      lower = means$lower2,
+      upper = means$upper2,
+      n = means$n2,
+      stringsAsFactors = FALSE
+    ),
     points1 = do.call(rbind, point_rows1),
     points2 = do.call(rbind, point_rows2)
   )
-
-  class(out) <- c("wvs_compare_jitter", "wvsR")
+  class(out) <- c("wvs_compare", "wvsR")
   out
 }
 
-
-#' Plot a `wvs_compare_jitter` object
+#' Plot a `wvs_compare` object
 #'
-#' Draws side-by-side respondent-level jitter points, means, and
-#' confidence intervals for two countries.
+#' Draws side-by-side jittered respondent-level points, mean scores,
+#' and confidence intervals for two countries.
 #'
-#' @param x A `wvs_compare_jitter` object as returned by
-#'   `wvs_compare_jitter()`.
+#' @param x A `wvs_compare` object as returned by `wvs_compare()`.
 #' @param jitter_height Vertical jitter width around each country row.
 #' @param jitter_width Horizontal jitter width applied to respondent
 #'   scores.
@@ -781,9 +579,8 @@ wvs_compare_jitter <- function(
 #' @param mean_cex Expansion factor for mean marker size.
 #' @param ... Additional plotting arguments (ignored).
 #' @return The input object invisibly.
- #' @keywords internal
- #' @noRd
-plot.wvs_compare_jitter <- function(
+#' @export
+plot.wvs_compare <- function(
   x,
   jitter_height = 0.09,
   jitter_width = 0.03,
@@ -794,25 +591,21 @@ plot.wvs_compare_jitter <- function(
   mean_cex = 1,
   ...
 ) {
-
   tbl1 <- x$means1
   tbl2 <- x$means2
   pts1 <- x$points1
   pts2 <- x$points2
 
   labels <- tbl1$label
-
-  mean1  <- tbl1$mean
+  mean1 <- tbl1$mean
   lower1 <- tbl1$lower
   upper1 <- tbl1$upper
-
-  mean2  <- tbl2$mean
+  mean2 <- tbl2$mean
   lower2 <- tbl2$lower
   upper2 <- tbl2$upper
 
   n <- length(labels)
   y <- rev(seq_len(n))
-
   y1 <- y + 0.16
   y2 <- y - 0.16
   y_lookup1 <- stats::setNames(y1, tbl1$dimension)
@@ -857,7 +650,6 @@ plot.wvs_compare_jitter <- function(
     graphics::mtext(paste(subtitle_parts, collapse = "  |  "), side = 3, line = 0.7, cex = 0.95)
   }
 
-  # neutral midpoint for direct comparability
   abline(v = 5, lty = 2, col = "grey70")
 
   ok1 <- is.finite(pts1$score) & !is.na(pts1$dimension)
@@ -891,7 +683,6 @@ plot.wvs_compare_jitter <- function(
   segments(lower1, y1, upper1, y1, col = col1, lwd = 2)
   segments(lower2, y2, upper2, y2, col = col2, lwd = 2)
 
-  # Solid mean markers to match the original compare plot style.
   points(mean1, y1, pch = 19, col = col1, cex = mean_cex)
   points(mean2, y2, pch = 19, col = col2, cex = mean_cex)
 

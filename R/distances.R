@@ -170,20 +170,16 @@ wvs_neighbors <- function(
 #'
 #' @param method One of `"pca"`, `"mds"`, or `"dimensions"`.
 #' @param wave Optional wave number to restrict the data.
-#' @param highlight Optional character vector of countries to
-#'   highlight on the plot (names or ISO codes).
 #' @param dimensions Named list of dimensions (default `dims_all`).
 #' @param select Optional vector of dimension names to select.
 #' @param strict Logical; if TRUE, use strict scoring rules.
 #' @param path Optional path to the joint data file.
 #' @return An object of class `wvs_space` (and `wvsR`) containing
-#'   `title`, `wave`, `method`, `axis_labels`, `coordinates`, and
-#'   `highlight`.
+#'   `title`, `wave`, `method`, `axis_labels`, and `coordinates`.
 #' @export
 wvs_space <- function(
   method = c("pca", "mds", "dimensions"),
   wave = NULL,
-  highlight = NULL,
   dimensions = dims_all,
   select = NULL,
   strict = FALSE,
@@ -227,14 +223,6 @@ wvs_space <- function(
   )
 
   isos <- rownames(coords)
-  highlight_iso <- character(0)
-  if (!is.null(highlight)) {
-    data <- wvs_data(path = path)
-    highlight_iso <- vapply(highlight, function(x) {
-      tryCatch(wvs_resolve(x, data), error = function(e) NA_character_)
-    }, character(1))
-    highlight_iso <- highlight_iso[!is.na(highlight_iso) & highlight_iso %in% isos]
-  }
 
   coordinate_names <- if (method == "dimensions") {
     colnames(coords)
@@ -266,7 +254,6 @@ wvs_space <- function(
       names(coord_df) <- c("iso", "country", coordinate_names)
       coord_df
     },
-    highlight = highlight_iso,
     axis_labels = axis_labels
   )
 
@@ -280,13 +267,20 @@ wvs_space <- function(
 #' `wvs_space()`.
 #'
 #' @param x A `wvs_space` object as returned by `wvs_space()`.
+#' @param highlight Optional character vector of countries to highlight on the plot (names or ISO codes).
 #' @param ... Additional plotting arguments (ignored).
 #' @return The input object invisibly.
 #' @export
-plot.wvs_space <- function(x, ...) {
+plot.wvs_space <- function(x, highlight = NULL, ...) {
   coords <- x$coordinates
   isos <- coords$iso
-  highlight_iso <- x$highlight
+  highlight_iso <- character(0)
+  if (!is.null(highlight)) {
+    highlight_iso <- vapply(highlight, function(x) {
+      tryCatch(.wvs_resolve(x), error = function(e) NA_character_)
+    }, character(1))
+    highlight_iso <- highlight_iso[!is.na(highlight_iso) & highlight_iso %in% isos]
+  }
   coord_cols <- tail(names(coords), 2)
 
   colors <- ifelse(isos %in% highlight_iso, "#C00000", "#4472C4")
