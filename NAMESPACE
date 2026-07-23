@@ -17,6 +17,7 @@ export(wvs_compare)
 export(wvs_difference)
 
 S3method(print,wvsR)
+S3method(str,wvsR)
 
 S3method(plot, wvs_space)
 S3method(plot, wvs_compare)

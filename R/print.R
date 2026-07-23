@@ -187,3 +187,52 @@ print.wvsR <- function(x, ...) {
 
   invisible(x)
 }
+
+#' Display a compact summary of a wvsR object
+#'
+#' A lightweight `str` method for `wvsR` objects so RStudio and other
+#' interactive displays show a concise overview instead of the raw list.
+#'
+#' @param object A `wvsR` object.
+#' @param ... Additional arguments passed to `str` (ignored).
+#' @keywords internal
+#' @noRd
+str.wvsR <- function(object, ...) {
+  cat("<wvsR> ", paste(class(object), collapse = ", "), "\n", sep = "")
+  if (!is.null(object$title)) {
+    cat("Title: ", object$title, "\n", sep = "")
+  }
+  if (!is.null(object$country)) {
+    cat("Country: ", object$country, "\n", sep = "")
+  }
+  if (!is.null(object$countries) && is.data.frame(object$countries)) {
+    cat("Countries: ", nrow(object$countries), " rows\n", sep = "")
+  }
+  if (!is.null(object$wave)) {
+    cat("Wave: ", object$wave, "\n", sep = "")
+  }
+  if (!is.null(object$method)) {
+    cat("Method: ", .wvs_method_label(object$method), "\n", sep = "")
+  }
+  if (!is.null(object$k)) {
+    cat("Clusters: ", object$k, "\n", sep = "")
+  }
+
+  components <- setdiff(names(object), c("title", "country", "countries", "wave", "method", "k"))
+  if (length(components) > 0L) {
+    cat("Components:\n")
+    for (name in components) {
+      value <- object[[name]]
+      label <- if (is.data.frame(value)) {
+        paste0("", name, " [", nrow(value), " x ", ncol(value), "]")
+      } else if (is.atomic(value) && length(value) == 1L) {
+        paste0(name, ": ", format(value))
+      } else {
+        paste0(name, " [", typeof(value), " length=", length(value), "]")
+      }
+      cat("  ", label, "\n", sep = "")
+    }
+  }
+
+  invisible(object)
+}
