@@ -1,6 +1,8 @@
 ---
 title: "Cultural Distances"
-output: rmarkdown::html_vignette
+output:
+  github_document:
+    preserve_yaml: FALSE
 vignette: >
   %\VignetteIndexEntry{Cultural Distances}
   %\VignetteEngine{knitr::rmarkdown}
@@ -24,89 +26,51 @@ library(wvsR)
 These can be used to explore the relationships between dimensions, identify clusters of similar cultures, 
 and highlight specific countries of interest.
 
+```{r toc, echo=FALSE}
+knitr::current_input() |> revised_toc(base_level = 3, toc_depth = 1)
+```
+
+---
+
 ## Mapping Countries
 
-`wvs_space()` can map countries directly on two named dimensions.
+`wvs_space()` will provide coordinates for countries directly on two named dimensions. 
 
 ```{r}
 wvs_space(
   method = "dimensions",
-  select = c("Tradition", "Survival"),
-  highlight = c("US", "CA")
+  select = c("Tradition", "Survival")
 )
 ```
 
-```{r}
+Follow with a plot call to visualize the results. It can highlight specific countries.
+
+```{r, distances-space}
 wvs_space(
   method = "dimensions",
-  select = c("Survival", "Tradition"),
-  highlight = c("US", "CA")
-) |> plot()
-```
-
-
-```{r}
-wvs_space(
-  method = "dimensions",
-  select = c("SurvivalSelfExpression", "TraditionalSecular"),
-  highlight = c("US", "CA")
-) |> plot()
-```
-
-```{r}
-wvs_space(
-  method = "dimensions",
-  select = c("Religiosity", "Economic"),
-  highlight = c("US")
-) |> plot()
-```
-
-```{r}
-wvs_space(
-  method = "dimensions",
-  select = c("Democracy", "DemocraticValues"),
-  highlight = c("US")
-) |> plot()
+  select = c("Tradition", "Survival")
+) |> plot(highlight = c("US", "CA"))
 ```
 
 It can also reduce a larger selected dimension space with PCA or MDS.
 
-```{r}
+```{r, distances-pca}
 wvs_space(
   method = "pca",
-  dimensions = dims_main,
-  highlight = c("US", "CA")
-)
+  dimensions = dims_main
+) |> plot(highlight = c("US", "CA"))
 ```
 
-```{r}
-wvs_space(
-  method = "pca",
-  dimensions = dims_main,
-  highlight = c("US", "CA")
-) |> plot()
-```
-
-```{r}
+```{r, distances-mds}
 wvs_space(
   method = "mds",
-  dimensions = dims_all,
-  highlight = c("US", "CA")
-)
-```
-
-```{r}
-wvs_space(
-  method = "mds",
-  dimensions = dims_all,
-  highlight = c("US", "CA")
-) |> plot()
+  dimensions = dims_all
+) |> plot(highlight = c("US", "CA"))
 ```
 
 ## Similar Countries
 
-`wvs_neighbors()` ranks countries by Euclidean distance across the selected
-dimension means.
+`wvs_neighbors()` ranks countries by Euclidean distance across the selected dimension means.
 
 ```{r}
 wvs_neighbors(
@@ -116,18 +80,19 @@ wvs_neighbors(
 )
 ```
 
+It can also be used to find the most similar countries on a single dimension.
+
 ```{r}
 wvs_neighbors(
   "US",
-  n = 5,
+  n = 10,
   select = c("Economic")
 )
 ```
 
 ## Clustering Countries
 
-`wvs_clusters()` applies k-means clustering to the selected country mean
-profiles.
+`wvs_clusters()` applies k-means clustering to the selected country mean profiles.
 
 ```{r}
 wvs_clusters(

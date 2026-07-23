@@ -44,7 +44,8 @@ country-dimension. Set to \code{NULL} to plot all finite scores.}
 An object of class \code{wvs_compare} (and \code{wvsR}) containing
 \code{title}, \code{countries}, \code{wave}, \code{means1}, \code{means2}, \code{points1}, and
 \code{points2}. \code{means1}/\code{means2} are data.frames with \code{dimension},
-\code{label}, \code{mean}, \code{lower}, \code{upper}, \code{n}.
+\code{label}, \code{mean}, \code{lower}, \code{upper}, \code{n}. \code{points1}
+and \code{points2} contain respondent-level scores used for plotting.
 }
 \description{
 Compute mean scores and confidence intervals for each dimension

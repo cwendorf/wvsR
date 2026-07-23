@@ -38,5 +38,6 @@ The input object invisibly.
 }
 \description{
 Draws a forest-style plot of mean scores and confidence intervals
-for each cultural dimension in a \code{wvs_profile} object.
+for each cultural dimension in a \code{wvs_profile} object, with
+respondent-level jittered points overlaid.
 }

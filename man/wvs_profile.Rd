@@ -46,7 +46,8 @@ dimension. Set to \code{NULL} to plot all finite scores.}
 An object of class \code{wvs_profile} (and \code{wvsR}) containing
 \code{title}, \code{country}, \code{wave}, \code{means} (a data.frame with
 \code{dimension}, \code{label}, \code{mean}, \code{lower}, \code{upper}, \code{n}), and
-\code{points} (respondent-level scores for plotting).
+\code{points} (respondent-level scores for plotting). The returned
+\code{points} data are used by \code{plot.wvs_profile()} to draw jittered points.
 }
 \description{
 Compute mean scores and confidence intervals for each cultural

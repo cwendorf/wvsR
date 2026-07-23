@@ -7,7 +7,6 @@
 wvs_space(
   method = c("pca", "mds", "dimensions"),
   wave = NULL,
-  highlight = NULL,
   dimensions = dims_all,
   select = NULL,
   strict = FALSE,
@@ -19,9 +18,6 @@ wvs_space(
 
 \item{wave}{Optional wave number to restrict the data.}
 
-\item{highlight}{Optional character vector of countries to
-highlight on the plot (names or ISO codes).}
-
 \item{dimensions}{Named list of dimensions (default \code{dims_all}).}
 
 \item{select}{Optional vector of dimension names to select.}
@@ -32,8 +28,7 @@ highlight on the plot (names or ISO codes).}
 }
 \value{
 An object of class \code{wvs_space} (and \code{wvsR}) containing
-\code{title}, \code{wave}, \code{method}, \code{axis_labels}, \code{coordinates}, and
-\code{highlight}.
+\code{title}, \code{wave}, \code{method}, \code{axis_labels}, and \code{coordinates}.
 }
 \description{
 Produce a two-dimensional embedding of countries using PCA, MDS,

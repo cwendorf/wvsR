@@ -40,6 +40,6 @@ scores.}
 The input object invisibly.
 }
 \description{
-Draws side-by-side mean and confidence interval comparisons for two
-countries returned by \code{wvs_compare()}.
+Draws side-by-side jittered respondent-level points, mean scores, and
+confidence intervals for two countries returned by \code{wvs_compare()}.
 }

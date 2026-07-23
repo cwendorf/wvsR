@@ -15,7 +15,9 @@ from survey items, the package prioritizes uncertainty-aware inference:
 
 ### Resources
 
-- [Data Basics](basics.md): Functions for country coverage, the survey items, and the available dimensions.
-- [Estimation Approach](estimation.md): Functions for getting country profiles, comparisons of countries, and country differences.
-- [Cultural Distances](distances.md): Functions for dimension mapping, identification of most similar countries, and clustering.
-- [Custom Dimensions](custom.md): Functions for building and using custom dimensions.
+- [Reference](./man/README.md): Documentation for all exported functions, including usage, arguments, return values, and examples.
+- [Articles](./vignettes/README.md): Examples demonstrating how to use the fucntions to explore the data.
+
+### References
+
+EVS/WVS (2022). _European Values Study and World Values Survey: Joint EVS/WVS 2017-2022 Dataset (Joint EVS/WVS)._ JD Systems Institute & WVSA. Dataset Version 5.0.0, doi:10.14281/18241.26. https://www.worldvaluessurvey.org/WVSEVSjoint2017.jsp
