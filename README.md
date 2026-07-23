@@ -1,4 +1,4 @@
-# wvsR
+# `wvsR`
 
 ## Cross-Cultural Comparisons Using WVS Data
 
@@ -29,7 +29,7 @@ library(wvsR)
 If you do not want a full install, source the latest function bundle directly:
 
 ```r
-source("https://raw.githubusercontent.com/cwendorf/cultureCompareR/main/source-wvsR.R")
+source("https://raw.githubusercontent.com/cwendorf/wvsR/main/source-wvsR.R")
 ```
 
 ### Usage
@@ -37,10 +37,8 @@ source("https://raw.githubusercontent.com/cwendorf/cultureCompareR/main/source-w
 This package includes the following documentation:
 
 - [Introduction](./docs/README.md): A quick overview and summary of the package.
-- [Data Basics](./docs/basics.md): Functions for country coverage, the survey items, and the available dimensions.
-- [Estimation Approach](./docs/estimation.md): Functions for getting country profiles, comparisons of countries, and country differences.
-- [Cultural Distances](./docs/distances.md): Functions for dimension mapping, identification of most similar countries, and clustering.
-- [Custom Dimensions](./docs/custom.md): Functions for building and using custom dimensions.
+- [Reference](./docs/man/README.md): Documentation for all exported functions, including usage, arguments, return values, and examples.
+- [Articles](./docs/vignettes/README.md): Examples demonstrating how to use the fucntions to explore the data.
 
 ### Contact
 
