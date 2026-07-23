@@ -38,7 +38,7 @@ This package includes the following documentation:
 
 - [Introduction](./docs/README.md): A quick overview and summary of the package.
 - [Reference](./docs/man/README.md): Documentation for all exported functions, including usage, arguments, return values, and examples.
-- [Articles](./docs/vignettes/README.md): Examples demonstrating how to use the fucntions to explore the data.
+- [Articles](./docs/vignettes/README.md): Examples demonstrating how to use the functions to explore the data.
 
 ### Contact
 
