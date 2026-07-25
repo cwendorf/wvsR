@@ -35,7 +35,6 @@ knitr::current_input() |> revised_toc(base_level = 3, toc_depth = 1)
 The `wvs_countries()` function lists the available countries and waves. The `wave` argument filters the list to countries that participated in a given wave.
 
 ```{r}
-wvs_countries()
 wvs_countries(wave = 7)
 ```
 
