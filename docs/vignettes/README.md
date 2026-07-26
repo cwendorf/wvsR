@@ -2,7 +2,7 @@
 
 ## Articles
 
-This section contains vignettes for `wvsR`.
+This section contains vignettes for `wvsR`. The vignettes how to access the data, explore the defined cultural dimensions, and visualize and test the differences among countries.
 
 ### Basic Operations
 
