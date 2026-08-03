@@ -20,15 +20,15 @@ you.
 
 ``` r
 dims_custom <- list(
-  SocialProgressivism = list(
-    label = "Social Progressivism",
+  ProgressiveValues = list(
+    label = "Progressive Values",
     type = "mean",
-    items = c("F118", "F119", "F120", "F121", "F122", "D059", "G052")
+    items = c("F118", "F119", "F120", "F121", "F122")
   ),
   MarketSkepticism = list(
     label = "Market Skepticism",
     type = "mean",
-    items = c("E035", "E036", "E037", "E039", "E033")
+    items = c("E035", "E036", "E037", "E039")
   )
 )
 ```
@@ -40,41 +40,35 @@ and ranges before using the custom dimensions.
 
 ``` r
 wvs_items(
-  vars = c("F118", "F119", "F120", "F121", "F122", "D059", "G052")
+  vars = c("F118", "F119", "F120", "F121", "F122")
 )
 ```
 
                                                                           label
-    D059                        Men make better political leaders than women do
     F118                                             Justifiable: Homosexuality
     F119                                              Justifiable: Prostitution
     F120                                                  Justifiable: Abortion
     F121                                                   Justifiable: Divorce
     F122                                                Justifiable: Euthanasia
-    G052 Evaluate the impact of immigrants on the development of [your country]
                        group direction min max
-    D059              Family         1  -1   4
     F118 Religion and morale         1  -1  10
     F119 Religion and morale         1  -1  10
     F120 Religion and morale         1  -1  10
     F121 Religion and morale         1  -1  10
     F122 Religion and morale         1  -1  10
-    G052   National identity         1  -1   5
 
 ``` r
 wvs_items(
-  vars = c("E035", "E036", "E037", "E039", "E033")
+  vars = c("E035", "E036", "E037", "E039")
 )
 ```
 
                                           label                group direction min
-    E033    Self positioning in political scale Politics and society         1  -1
     E035                        Income equality Politics and society        -1  -1
     E036 Private vs state ownership of business Politics and society        -1  -1
     E037              Government responsibility Politics and society        -1  -1
     E039            Competition good or harmful Politics and society        -1  -1
          max
-    E033  10
     E035  10
     E036  10
     E037  10
@@ -113,7 +107,7 @@ custom dimensions and highlight the US and JP:
 wvs_space(
   method="dimensions", 
   dimensions = dims_custom, 
-  select=c("SocialProgressivism", "MarketSkepticism"),
+  select=c("ProgressiveValues", "MarketSkepticism"),
 ) |> plot(highlight=c("US", "JP"))
 ```
 

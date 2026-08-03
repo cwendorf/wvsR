@@ -38,15 +38,15 @@ automatically fills in the response ranges and directions for you.
 
 ```{r}
 dims_custom <- list(
-  SocialProgressivism = list(
-    label = "Social Progressivism",
+  ProgressiveValues = list(
+    label = "Progressive Values",
     type = "mean",
-    items = c("F118", "F119", "F120", "F121", "F122", "D059", "G052")
+    items = c("F118", "F119", "F120", "F121", "F122")
   ),
   MarketSkepticism = list(
     label = "Market Skepticism",
     type = "mean",
-    items = c("E035", "E036", "E037", "E039", "E033")
+    items = c("E035", "E036", "E037", "E039")
   )
 )
 ```
@@ -57,10 +57,10 @@ List the items used in each custom dimension so you can verify labels and ranges
 
 ```{r}
 wvs_items(
-  vars = c("F118", "F119", "F120", "F121", "F122", "D059", "G052")
+  vars = c("F118", "F119", "F120", "F121", "F122")
 )
 wvs_items(
-  vars = c("E035", "E036", "E037", "E039", "E033")
+  vars = c("E035", "E036", "E037", "E039")
 )
 ```
 
@@ -90,6 +90,6 @@ Project countries into the two-dimensional space defined by the selected custom 
 wvs_space(
   method="dimensions", 
   dimensions = dims_custom, 
-  select=c("SocialProgressivism", "MarketSkepticism"),
+  select=c("ProgressiveValues", "MarketSkepticism"),
 ) |> plot(highlight=c("US", "JP"))
 ```
