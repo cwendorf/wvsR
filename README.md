@@ -7,7 +7,7 @@
 
 ### Overview
 
-`wvsR` is an estimation-focused toolkit for cross-cultural comparison
+`wvsR` is an estimation-focused R package for cross-cultural comparison
 using the EVS/WVS Joint Dataset. In addition to building cultural scores directly
 from survey items, the package prioritizes uncertainty-aware inference:
 
