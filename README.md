@@ -7,9 +7,7 @@
 
 ### Overview
 
-`wvsR` is an estimation-focused R package for cross-cultural comparison
-using the EVS/WVS Joint Dataset. In addition to building cultural scores directly
-from survey items, the package prioritizes uncertainty-aware inference:
+`wvsR` is an estimation-focused R package for cross-cultural comparison using the EVS/WVS Joint Dataset. In addition to building cultural scores directly from survey items, the package prioritizes uncertainty-aware inference:
 
 - Country profiles with confidence intervals
 - Between-country comparisons with mean differences and Cohen's d
@@ -39,12 +37,6 @@ This package includes the following documentation:
 - [Introduction](./docs/README.md): A quick overview and summary of the package.
 - [Reference](./docs/man/README.md): Documentation for all exported functions, including usage, arguments, return values, and examples.
 - [Articles](./docs/vignettes/README.md): Examples demonstrating how to use the functions to explore the data.
-
-### Contact
-
-- GitHub Issues: [https://github.com/cwendorf/wvsR/issues](https://github.com/cwendorf/wvsR/issues)
-- Author Email: [cwendorf@uwsp.edu](mailto:cwendorf@uwsp.edu)
-- Author Homepage: [https://github.com/cwendorf](https://github.com/cwendorf)
 
 ### Citation
 

@@ -1,6 +1,6 @@
 # wvsR
 
-## wvsR 0.1.260723
+## wvsR 0.260723
 
 - Initial package release
 - Added cultural dimensions defined from items
