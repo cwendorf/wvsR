@@ -1,5 +1,3 @@
-# [`wvsR`](https://github.com/cwendorf/wvsR/)
-
 ## Contributing to the Package
 
 The main way to contribute is to [submit an issue](../../issues/). This repository does **not** accept pull requests.
