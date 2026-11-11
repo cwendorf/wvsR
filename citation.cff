@@ -5,11 +5,5 @@ authors:
   - family-names: "Wendorf"
     given-names: "Craig A."
     email: "cwendorf@uwsp.edu"
-version: "0.260723"
-license: "MIT"
-repository-code: "https://github.com/cwendorf/wvsR"
+date-released: "2026-07-23"
 url: "https://github.com/cwendorf/wvsR"
-abstract: >-
-  Tools for profiling, comparing, and visualizing cultural dimensions derived
-  from the World Values Survey (WVS) dataset. Emphasizes estimation, confidence
-  intervals, and effect sizes in data visualization and reporting.
