@@ -17,7 +17,7 @@
 
 ### Installation
 
-This package is not currently on CRAN. Install from GitHub:
+This package is not currently available on CRAN. It can be installed directly from GitHub:
 
 ```r
 if (!requireNamespace("remotes", quietly = TRUE)) install.packages("remotes")
@@ -25,7 +25,7 @@ remotes::install_github("cwendorf/wvsR")
 library(wvsR)
 ```
 
-If you do not want a full install, source the latest function bundle directly:
+If you prefer not to install the package, you can load the current functions directly:
 
 ```r
 source("https://raw.githubusercontent.com/cwendorf/wvsR/main/source-wvsR.R")
