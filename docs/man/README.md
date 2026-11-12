@@ -2,7 +2,13 @@
 
 ## Reference
 
-This section is the reference for `wsvR`. Each page documents one exported function, including usage, arguments, return values, and examples.
+This section is the reference for `wvsR`. Each page documents one exported function, including usage, arguments, return values, and examples.
+
+- [Data Definitions](#data-definitions)
+- [Cultural Estimates](#cultural-estimates)
+- [Cultural Distances](#cultural-distances)
+
+---
 
 ### Data Definitions
 

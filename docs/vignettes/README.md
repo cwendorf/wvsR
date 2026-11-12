@@ -2,7 +2,11 @@
 
 ## Articles
 
-This section contains vignettes for `wvsR`. The vignettes how to access the data, explore the defined cultural dimensions, and visualize and test the differences among countries.
+This section contains articles for `wvsR`. They show how to access survey data, explore cultural dimensions, compare countries, and create custom dimensions.
+
+- [Basic Operations](#basic-operations)
+
+---
 
 ### Basic Operations
 

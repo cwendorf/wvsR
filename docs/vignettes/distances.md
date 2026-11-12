@@ -7,6 +7,10 @@ countries. These can be used to explore the relationships between
 dimensions, identify clusters of similar cultures, and highlight
 specific countries of interest.
 
+- [Mapping Countries](#mapping-countries)
+- [Similar Countries](#similar-countries)
+- [Clustering Countries](#clustering-countries)
+
 ------------------------------------------------------------------------
 
 ## Mapping Countries

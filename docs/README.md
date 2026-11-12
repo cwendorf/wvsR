@@ -2,11 +2,17 @@
 
 ## Introduction
 
-### Purpose
+Cross-cultural comparisons require consistent survey measures and methods that account for uncertainty. `wvsR` uses the joint European Values Study and World Values Survey dataset to build cultural scores and compare countries.
 
-`wvsR` is an estimation-focused toolkit for cross-cultural comparison
-using the EVS/WVS Joint Dataset. In addition to building cultural scores directly
-from survey items, the package prioritizes uncertainty-aware inference:
+- [Overview](#overview)
+- [Resources](#resources)
+- [References](#references)
+
+---
+
+### Overview
+
+`wvsR` combines survey metadata with estimation-focused tools for country profiles, comparisons, and cultural distances. Its functions build cultural scores directly from survey items and support uncertainty-aware inference:
 
 - Country profiles with confidence intervals
 - Between-country comparisons with mean differences and Cohen's d
@@ -16,7 +22,7 @@ from survey items, the package prioritizes uncertainty-aware inference:
 ### Resources
 
 - [Reference](./man/README.md): Documentation for all exported functions, including usage, arguments, return values, and examples.
-- [Articles](./vignettes/README.md): Examples demonstrating how to use the fucntions to explore the data.
+- [Articles](./vignettes/README.md): Examples demonstrating how to use the functions to explore the data.
 
 ### References
 
